@@ -1,0 +1,30 @@
+a1.sources = r1
+a1.sinks = k1 k2
+a1.channels = c1 c2
+
+
+
+a1.sources.r1.type = netcat
+a1.sources.r1.bind =192.168.3.89
+a1.sources.r1.port = 9999
+
+
+a1.channels.c1.type = memory
+a1.channels.c2.type = memory
+
+
+x
+a1.sinks.k2.type = org.apache.flume.sink.kafka.KafkaSink
+a1.sinks.k2.kafka.topic = order
+a1.sinks.k2.kafka.bootstrap.servers =master:9092
+
+
+
+a1.sinks.k1.type = hdfs
+a1.sinks.k1.hdfs.path =/user/test/flumebackup
+a1.sinks.k1.hdfs.useLocalTimeStamp=true
+a1.sinks.k1.hdfs.fileType=DataStream
+
+a1.sources.r1.channels = c1 c2
+a1.sinks.k1.channel = c1
+a1.sinks.k2.channel = c2

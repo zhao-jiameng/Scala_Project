@@ -1,4 +1,4 @@
-package 大赛
+/*package 大赛
 
 
 import java.io.{File, FileWriter}
@@ -78,42 +78,30 @@ object 任務書三 {
     val oneStream = outPutStream.filter(data => {
       data.status != "1003" && data.status != "1005" && data.status != "1006"
     }).map(data => (data.user_id, data.sum)).keyBy(0).sum(1)
-//    val one2Stream=env.readTextFile()
-//      .timeWindowAll(Time.minutes(1),Time.seconds(1))
-//      .apply(new AllWindowFunction[(String,Double),List[(String, Double)], TimeWindow] {
-//        override def apply(window: TimeWindow, input: Iterable[(String,Double)], out: Collector[List[(String, Double)]]): Unit = {
-//          out.collect(input.toList.sortBy(_._2).reverse)
-//        }
-//      })
-    var id = 0
-    var id2=0
-    var name=""
-    var name2=""
-    var sum=0.0
-    var sum2=0.0
+      .timeWindowAll(Time.minutes(1),Time.seconds(1))
+      .apply(new AllWindowFunction[(String,Double),List[(String, Double)], TimeWindow] {
+        override def apply(window: TimeWindow, input: Iterable[(String,Double)], out: Collector[List[(String, Double)]]): Unit = {
+          out.collect(input.toList.sortBy(_._2).reverse)
+        }
+      })
 
     oneStream.addSink(new RichSinkFunction[(String, Double)] {
       var conn :Connection= _
       var selectStem:PreparedStatement= _
       var instStem:PreparedStatement=_
-      var fw: FileWriter=_
+
       override def open(parameters: Configuration): Unit = {
-        conn=DriverManager.getConnection("jdbc:mysql://192.168.174.200:3306/shud_result?characterEncoding=UTF-8","root","root")
-        instStem=conn.prepareStatement("insert into one_info values (?,?)")
-        selectStem=conn.prepareStatement("select o.user_id,u.name,sum(o.final_total_amount) as num from user_info u join order_info o on o.user_id=u.id group by o.user_id order by num desc limit 2")
-        val file = new File("H:\\Scala程序\\Flink\\src\\main\\resources\\info.txt");
-        if(!file.exists()){
-          file.createNewFile();
-        }
-        fw = new FileWriter(file)
+        conn = DriverManager.getConnection("jdbc:mysql://192.168.174.200:3306/shud_result?characterEncoding=UTF-8", "root", "root")
+        instStem = conn.prepareStatement("insert into one_info values (?,?)")
+        selectStem = conn.prepareStatement("select o.user_id,u.name,sum(o.final_total_amount) as num from user_info u join order_info o on o.user_id=u.id group by o.user_id order by num desc limit 2")
+      }
 
-
-       override def invoke(value:(String, Double)): Unit= {
+      override def invoke(value:(String, Double)): Unit= {
         instStem.setString(1,value._1)
         instStem.setDouble(2,value._2)
         instStem.executeUpdate()
         val rs=selectStem.executeQuery()
-        rs.next()
+/*        rs.next()
         id = rs.getInt("user_id")
         name = rs.getString("name")
         sum=rs.getDouble("num")
@@ -122,31 +110,15 @@ object 任務書三 {
         name2 = rs.getString("name")
         sum2=rs.getDouble("num")
     fw.write(id+"\r\n")
-    fw.flush
-
-        val value1 = env.readTextFile("src/main/resources/hello.txt")
-        val conf=new FlinkJedisPoolConfig.Builder()
-          .setHost("192.168.174.200")
-          .setPort(6379)
-          .build()
-        value1.addSink(new RedisSink[String](conf,new RedisMapper[String] {
-          override def getCommandDescription: RedisCommandDescription = new RedisCommandDescription(RedisCommand.SET)
-
-          override def getKeyFromData(t: String): String = "top2userconsumption"
-
-          override def getValueFromData(t: String): String = "[" + id + ":" + name + ":" + sum + "," + id2 + ":" + name2 + ":" + sum2 + "]"
-        }))
+    fw.flush*/
       }
 
-
-
-
       override def close(): Unit = {
-        fw.close
         selectStem.close()
         instStem.close()
         conn.close()
       }
+
       }
 
 /*
@@ -242,4 +214,4 @@ object 任務書三 {
     format.parse(time).getTime
   }
 
-}
+}*/
